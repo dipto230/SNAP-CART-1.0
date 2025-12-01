@@ -1,5 +1,6 @@
 import { auth } from '@/auth'
 import EditRoleMobile from '@/components/EditRoleMobile'
+import Nav from '@/components/Nav'
 import connectDb from '@/lib/db'
 import User from '@/models/user.model'
 import { redirect } from 'next/navigation'
@@ -17,9 +18,9 @@ async function page() {
     return <EditRoleMobile/>
   }
   return (
-    <div>
-
-    </div>
+    <>
+      <Nav user={user} />
+    </>
   )
 }
 

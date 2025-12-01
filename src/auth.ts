@@ -3,9 +3,14 @@ import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import User from "./models/user.model"
 import connectDb from "./lib/db"
+import Google from "next-auth/providers/google"
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
     providers: [
+        Google({
+            clientId: process.env.GOOGLE_CLIENT_ID,
+            clientSecret:process.env.GOOGLE_CLIENT_SECRET
+        }),
         Credentials({
             credentials: {
                 email:{label:"email",type:"email"},
@@ -36,6 +41,23 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         })
     ],
     callbacks: {
+        async signIn({ user, account }) {
+            if (account?.provider == "google") {
+                await connectDb()
+                let dbUser = await User.findOne({ email: user.email })
+                if (!dbUser) {
+                    dbUser = await User.create({
+                        name: user.name,
+                        email: user.email,
+                        image:user.image
+                    })
+                }
+                user.id = dbUser._id.toString()
+                user.role = dbUser.role
+
+            }
+            return true
+        },
         jwt({ token, user }) {
             if (user) {
                 token.id = user.id;

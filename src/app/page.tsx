@@ -5,6 +5,11 @@ import connectDb from '@/lib/db'
 import User from '@/models/user.model'
 import { redirect } from 'next/navigation'
 import React from 'react'
+import  UserDashboard  from '@/components/UserDashboard';
+import AdminDashboard from '@/components/AdminDashboard'
+import DeliveryBoy from '@/components/DeliveryBoy'
+
+
 
 async function page() {
   await connectDb()
@@ -21,6 +26,11 @@ async function page() {
   return (
     <>
       <Nav user={plainUser} />
+      {user.role == "user" ? (
+        <UserDashboard/>
+      ) : user.role == "admin" ? (
+          <AdminDashboard/>
+      ):<DeliveryBoy/>}
     </>
   )
 }

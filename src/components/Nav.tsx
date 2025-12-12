@@ -7,6 +7,9 @@ import Image from 'next/image'
 import { AnimatePresence,motion } from 'motion/react'
 import { signOut } from 'next-auth/react'
 import { createPortal } from 'react-dom'
+import { useSelector } from 'react-redux'
+import { RootState } from '@/redux/store'
+
 
 interface IUser {
     _id?: mongoose.Types.ObjectId
@@ -23,6 +26,7 @@ function Nav({ user }:{user:IUser}) {
   const profileDropDown = useRef<HTMLDivElement>(null)
   const [searchBarOpen, setSearchBarOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const{cartData} = useSelector((state:RootState)=>state.cart)
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (profileDropDown.current && !profileDropDown.current.contains(e.target as Node)) {
@@ -138,7 +142,7 @@ const sideBar = menuOpen
   <Link href={"/cart"} className='relative bg-white rounded-full w-11 h-11 flex items-center justify-center shadow-md hover:scale-105 transition'>
     <ShoppingCartIcon className='text-green-600 w-6 h-6' />
     <span className='absolute -top-1 -right-1 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full font-semibold shadow-md'>
-      0
+      {cartData.length}
     </span>
         </Link>
         </>}

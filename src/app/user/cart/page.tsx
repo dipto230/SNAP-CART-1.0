@@ -10,7 +10,7 @@ import Image from 'next/image';
 import { decreaseQuantity, increaseQuantity, removeFromCart } from '@/redux/cartSlice';
 
 function CartPage() {
-    const { cartData } = useSelector((state: RootState) => state.cart)
+    const { cartData, subTotal,finalTotal, deliveryFee } = useSelector((state: RootState) => state.cart)
     const dispatch = useDispatch<AppDispatch>()
   return (
       <div className='w-[95%] sm:w-[90%] md:w-[80%] mx-auto mt-8 mb-24 relative'>
@@ -86,6 +86,36 @@ function CartPage() {
                           className='bg-white rounded-2xl shadow-xl p-6 h-fit sticky top-24 border border-gray-100 flex flex-col'
                       >
                           <h2 className='text-lg sm:text-xl font-bold text-gray-800 mb-4'>Order Summary</h2>
+                          <div className='flex justify-between'>
+                            
+                                  <span>Subtotal</span>
+                                  <span className='text-green-700 font-semibold'>{subTotal}</span>
+                              
+                          </div>
+
+                           <div className='flex justify-between'>
+                            
+                                  <span>Delivery Fee</span>
+                                  <span className='text-green-700 font-semibold'>{deliveryFee}</span>
+                              
+                          </div>
+                          <hr className='my-3' />
+                            <div className='flex justify-between font-bold text-lg sm:text-xl'>
+                            
+                                  <span>Final Total</span>
+                                  <span className='text-green-700 font-semibold'>{finalTotal}</span>
+                              
+                          </div>
+
+                          
+                          <motion.button
+                              whileTap={{ scale: 0.95 }}
+                              className='w-full mt-6 bg-green-600 text-white py-3 rounded-full hover:bg-green-700 transition-all font-semibold text-sm sm:text-base'
+                          >
+                              Proceed to Checkout
+                              </motion.button>
+                              
+                          
                           
                       </motion.div>
                       

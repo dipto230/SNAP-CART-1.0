@@ -5,7 +5,20 @@ import { ArrowLeft, Building, Home, MapPin, Navigation, Phone, Search, User } fr
 import { useRouter } from 'next/navigation'
 import { useSelector } from 'react-redux'
 import { RootState } from '@/redux/store'
-import MapView from '@/components/MapView'
+//import MapView from '@/components/MapView'
+import { MapContainer,Marker,TileLayer, useMap } from 'react-leaflet'
+import L, { LatLngExpression } from 'leaflet'
+import "leaflet/dist/leaflet.css"
+import axios from 'axios'
+
+const markerIcon = new L.Icon({
+    iconUrl: "https://cdn-icons-png.flaticon.com/128/684/684908.png",
+iconSize: [40, 40],
+iconAnchor: [20, 40]
+})
+
+
+
 
 
 function Checkout() {
@@ -26,7 +39,7 @@ function Checkout() {
                 const { latitude, longitude } = pos.coords
 
                 setPosition([latitude,longitude])
-          })
+          },(err)=>{console.log('location error',err)},{enableHighAccuracy:true,maximumAge:0,timeout:10000})
         }
     }, [])
     useEffect(()=>{
@@ -34,7 +47,46 @@ function Checkout() {
             setAddress((prev) => ({ ...prev, fullName: userData?.name || "" }))
             setAddress((prev)=>({...prev,mobile:userData?.mobile || ""}))
 }
-    },[userData])
+    }, [userData])
+    
+    const DraggableMarker: React.FC = () => {
+        const map = useMap()
+        useEffect(() => {
+            map.setView(position as LatLngExpression,15,{animate:true})
+        },[position,map])
+        return    <Marker icon={markerIcon} position={position as LatLngExpression}
+                                  draggable={true}
+                                  eventHandlers={{
+                                      dragend: (e:L.LeafletEvent) => {
+                                          const marker = e.target as L.Marker
+                                          const { lat, lng } = marker.getLatLng()
+                                          setPosition([lat,lng])
+                                      }
+                                  }}
+                              />
+    }
+    useEffect(() => {
+    const fetchAddress = async () => {
+      if (!position) return
+      try {
+        const result = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse?lat=${position[0]}&lon=${position[1]}&format=json`
+        )
+          console.log(result.data)
+          setAddress(prev => ({
+              ...prev,
+              city: result.data.address.city,
+              state: result.data.address.state,
+              pincode: result.data.address.postcode,
+              fullAddress:result.data.display_name
+          }))
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    fetchAddress()
+  }, [position])
   return (
       <div className='w-[92%] md:w-[80%] mx-auto py-10 relative'>
           <motion.button
@@ -104,7 +156,15 @@ function Checkout() {
                           
                       </div>
                       <div className='relative mt-6 h-[330px] rounded-xl overflow-hidden border border-gray-200 shadow-inner'>
-                          <MapView position={position}/>
+                          {position &&                   <MapContainer center={position as LatLngExpression} zoom={13} scrollWheelZoom={true} className='w-full h-full'>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                              />
+                            <DraggableMarker/>
+      
+    </MapContainer> }
+          
                       </div>
                       
                   </div>

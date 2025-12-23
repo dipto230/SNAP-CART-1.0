@@ -8,6 +8,7 @@ import React from 'react'
 import  UserDashboard  from '@/components/UserDashboard';
 import AdminDashboard from '@/components/AdminDashboard'
 import DeliveryBoy from '@/components/DeliveryBoy'
+import GeoUpdater from '@/components/GeoUpdater'
 
 
 
@@ -26,6 +27,7 @@ async function page() {
   return (
     <>
       <Nav user={plainUser} />
+      <GeoUpdater userId={plainUser._id}/>
       {user.role == "user" ? (
         <UserDashboard/>
       ) : user.role == "admin" ? (

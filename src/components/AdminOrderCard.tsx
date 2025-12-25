@@ -4,9 +4,27 @@ import React, { useState } from 'react'
 import {motion} from "motion/react"
 import { ChevronDown, ChevronUp, CreditCard, MapPin, Package, Phone, User } from 'lucide-react'
 import Image from 'next/image'
+import axios from 'axios'
 function AdminOrderCard({ order }: { order: IOrder }) {
-    const statusOptions = ["Pending", "Out for delivery"]
+    //const statusOptions = ["Pending", "Out for delivery"]
+const statusOptions = [
+  { label: "Pending", value: "pending" },
+  { label: "Out for delivery", value: "out of delivery" },
+  { label: "Delivered", value: "delivered" } // optional if you want
+];
+
+
+    const [status, setStatus] = useState<string>(order.status)
     const [expanded, setExpanded] = useState(false)
+    const updateStatus = async (orderId: string, status: string) => {
+        try {
+            const result = await axios.post(`/api/admin/update-order-status/${orderId}`, { status })
+            console.log(result)
+            setStatus(status)
+        } catch (error) {
+            console.log(error)
+        }
+    }
   return (
       <motion.div
           key={order._id?.toString()}
@@ -59,21 +77,40 @@ function AdminOrderCard({ order }: { order: IOrder }) {
               </div>
               <div className='flex flex-col items-start md:items-end gap-2'>
                   <span className={`text-xs font-semibold px-3 py-1 rounded-full capitalize ${
-                      order.status === "delivered"
+                      status === "delivered"
                       ? "bg-green-100 text-green-700"
-                      : order.status === "pending"
+                      : status === "pending"
                           ? "bg-yellow-100 text-yellow-700"
                           :"bg-blue-100 text-blue-700"
                       }`}>
-                      {order.status}
+                      {status}
                       
                   </span>
-                  <select className='border border-gray-300 rounded-lg px-3 py-1 text-sm shadow-sm hover:border-green-400 transition focus:ring-2 focus:ring-green-500 outline-none'>
-                      {statusOptions.map(st => (
-                          <option key={st} value={st}>{ st.toUpperCase()}</option>
-                      ))}
+                  {/* <select className='border border-gray-300 rounded-lg px-3 py-1 text-sm shadow-sm hover:border-green-400 transition focus:ring-2 focus:ring-green-500 outline-none'
+                      onChange={(e) => {
+                          if (!order._id) return;
+                          updateStatus(order._id?.toString(), e.target.value)
+                      }}
+                      value={status}
+                  >
+                     {statusOptions.map(st => (
+  <option key={st.value} value={st.value}>{st.label}</option>
+))}
+
                       
-                  </select>
+                  </select> */}
+                  <select
+  value={status}
+  onChange={(e) => {
+    if (!order._id) return;
+    updateStatus(order._id.toString(), e.target.value); // sends exact backend enum
+  }}
+>
+  {statusOptions.map(st => (
+    <option key={st.value} value={st.value}>{st.label}</option>
+  ))}
+</select>
+
                   
               </div>
               

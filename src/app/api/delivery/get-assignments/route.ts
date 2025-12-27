@@ -11,10 +11,11 @@ export async function GET() {
         await connectDb()
         const session = await auth()
         const assignments = await DeliveryAssignment.find({
-            brodcastedTo: session?.user?.id,
-            status:"brodcasted"
+            broadcastedTo: session?.user?.id,
+            status:"broadcasted"
         }).populate("order") 
         return NextResponse.json(
+             { assignments },
             assignments,{status:200}
         )
     } catch (error) {

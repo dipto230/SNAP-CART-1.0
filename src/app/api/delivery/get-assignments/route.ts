@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 
 
 
+
 export async function GET() {
     try {
         await connectDb()
@@ -16,7 +17,7 @@ export async function GET() {
         }).populate("order") 
         return NextResponse.json(
              { assignments },
-            assignments,{status:200}
+            {status:200}
         )
     } catch (error) {
         return NextResponse.json(

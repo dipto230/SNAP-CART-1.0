@@ -57,6 +57,15 @@ export async function POST(req:NextRequest,{params}:{params:{orderId:string}}) {
                 broadcastedTo: candidates,
                 status:"broadcasted"
             })
+
+             await deliveryAssignment.populate("order")
+            for (const boyId of candidates) {
+                const boy = await User.findById(boyId)
+                if (boy.socketId) {
+                    await emitEventHandler("new-assignment",deliveryAssignment, boy.socketId) 
+                }
+            }
+
             order.assignment = deliveryAssignment._id;
                 deliveryBoysPayload = availableDeliveryBoys.map(b => ({
                     id: b._id,

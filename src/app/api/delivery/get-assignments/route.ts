@@ -21,7 +21,7 @@ export async function GET() {
         )
     } catch (error) {
         return NextResponse.json(
-            {message:`get assignments error ${error}`},{status:200}
+            {message:`get assignments error ${error}`},{status:500}
         )
     }
 }

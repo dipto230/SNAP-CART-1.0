@@ -24,7 +24,7 @@ function UserOrderCard({ order }: { order: IOrder }) {
     useEffect(():any => {
         const socket = getSocket()
         socket.on("order-status-update", (data) => {
-            if (data.orderId == order._id) {
+            if (data.orderId.toString() == order._id!.toString()) {
              setStatus(data.status)
          }   
         })

@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         assignment.status = "assigned"
         assignment.acceptedAt = new Date()
         await assignment.save()
-        const order = await Order.findById(assignment._id)
+        const order = await Order.findById(assignment.order)
         if (!order) {
             return NextResponse.json({message:"order not found"},{status:400})
         }

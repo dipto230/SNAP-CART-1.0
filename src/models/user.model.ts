@@ -17,6 +17,7 @@ interface IUser {
         coordinates: {
             type: NumberConstructor[];
             default: number[];
+
         };
     },
     socketId: string | null
@@ -58,7 +59,7 @@ const userSchema = new mongoose.Schema<IUser>({
         },
         coordinates: {
             type: [Number],
-            default:[0,0]
+            default: [0, 0]
         }
     },
     socketId: {

@@ -15,7 +15,10 @@ interface Iprops {
   deliveryBoyLocation?: ILocation
 }
 
-export default function MapComponent({ userLocation, deliveryBoyLocation }: Iprops) {
+export default function MapComponent({
+  userLocation,
+  deliveryBoyLocation,
+}: Iprops) {
   // Icons
   const deliveryBoyIcon = L.icon({
     iconUrl: 'https://cdn-icons-png.flaticon.com/128/1023/1023448.png',
@@ -26,38 +29,57 @@ export default function MapComponent({ userLocation, deliveryBoyLocation }: Ipro
     iconUrl: 'https://cdn-icons-png.flaticon.com/128/9984/9984268.png',
     iconSize: [45, 45],
   })
-    
-    const linePosition =
-        deliveryBoyLocation && userLocation
-            ? [
-                [userLocation.latitude, userLocation.longitude],
-                [deliveryBoyLocation.latitude, deliveryBoyLocation.longitude],
-    ]:[]
 
-  const center: LatLngExpression = [userLocation.latitude, userLocation.longitude]
+  const center: LatLngExpression = [
+    userLocation.latitude,
+    userLocation.longitude,
+  ]
+
+  const linePosition: LatLngExpression[] =
+    deliveryBoyLocation
+      ? [
+          [userLocation.latitude, userLocation.longitude],
+          [deliveryBoyLocation.latitude, deliveryBoyLocation.longitude],
+        ]
+      : []
 
   return (
     <MapContainer
       center={center}
       zoom={13}
-      scrollWheelZoom={true}
+      scrollWheelZoom
       className="w-full h-[500px] rounded-xl overflow-hidden shadow"
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        attribution='&copy; OpenStreetMap contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-          <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon} />
-          <Popup>Delivery Address</Popup>
+
+      {/* User Marker */}
+      <Marker
+        position={[userLocation.latitude, userLocation.longitude]}
+        icon={userIcon}
+      >
+        <Popup>Delivery Address</Popup>
+      </Marker>
+
+      {/* Delivery Boy Marker */}
       {deliveryBoyLocation && (
         <Marker
-          position={[deliveryBoyLocation.latitude, deliveryBoyLocation.longitude]}
-                  icon={deliveryBoyIcon}
-                  
-              />
-               
-          )}
-          <Polyline positions={linePosition as any} color='green'/>
+          position={[
+            deliveryBoyLocation.latitude,
+            deliveryBoyLocation.longitude,
+          ]}
+          icon={deliveryBoyIcon}
+        >
+          <Popup>Delivery Boy Location</Popup>
+        </Marker>
+      )}
+
+      {/* Route Line */}
+      {linePosition.length === 2 && (
+        <Polyline positions={linePosition} />
+      )}
     </MapContainer>
   )
 }

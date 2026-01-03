@@ -1,0 +1,63 @@
+'use client'
+
+import React from 'react'
+import L, { LatLngExpression } from 'leaflet'
+import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+
+interface ILocation {
+  latitude: number
+  longitude: number
+}
+
+interface Iprops {
+  userLocation: ILocation
+  deliveryBoyLocation?: ILocation
+}
+
+export default function MapComponent({ userLocation, deliveryBoyLocation }: Iprops) {
+  // Icons
+  const deliveryBoyIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/128/1023/1023448.png',
+    iconSize: [45, 45],
+  })
+
+  const userIcon = L.icon({
+    iconUrl: 'https://cdn-icons-png.flaticon.com/128/9984/9984268.png',
+    iconSize: [45, 45],
+  })
+    
+    const linePosition =
+        deliveryBoyLocation && userLocation
+            ? [
+                [userLocation.latitude, userLocation.longitude],
+                [deliveryBoyLocation.latitude, deliveryBoyLocation.longitude],
+    ]:[]
+
+  const center: LatLngExpression = [userLocation.latitude, userLocation.longitude]
+
+  return (
+    <MapContainer
+      center={center}
+      zoom={13}
+      scrollWheelZoom={true}
+      className="w-full h-[500px] rounded-xl overflow-hidden shadow"
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+          <Marker position={[userLocation.latitude, userLocation.longitude]} icon={userIcon} />
+          <Popup>Delivery Address</Popup>
+      {deliveryBoyLocation && (
+        <Marker
+          position={[deliveryBoyLocation.latitude, deliveryBoyLocation.longitude]}
+                  icon={deliveryBoyIcon}
+                  
+              />
+               
+          )}
+          <Polyline positions={linePosition as any} color='green'/>
+    </MapContainer>
+  )
+}

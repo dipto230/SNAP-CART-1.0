@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import connectDb from "@/lib/db";
 import DeliveryAssignment from "@/models/deliveryAssignment.model";
-import Order from "@/models/order.model";
+import "@/models/order.model"; // 🔥 FORCE REGISTER MODEL
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -9,24 +9,27 @@ export async function GET() {
     await connectDb();
 
     const session = await auth();
-    const deliveryBoyId = session?.user?.id;
-
-    if (!deliveryBoyId) {
+    if (!session?.user?.id) {
       return NextResponse.json(
         { message: "Unauthorized" },
         { status: 401 }
       );
     }
 
+    const deliveryBoyId = session.user.id;
+
     const activeAssignment = await DeliveryAssignment.findOne({
       assignedTo: deliveryBoyId,
       status: "assigned",
     })
-      .populate("order")
+      .populate("order") // SAFE NOW
       .lean();
 
     if (!activeAssignment) {
-      return NextResponse.json({ active: false }, { status: 200 });
+      return NextResponse.json(
+        { active: false },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json(
@@ -34,11 +37,9 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
+    console.error("CURRENT ORDER ERROR:", error);
     return NextResponse.json(
-      {
-        message:
-          error instanceof Error ? error.message : "Server error",
-      },
+      { message: "Internal server error" },
       { status: 500 }
     );
   }

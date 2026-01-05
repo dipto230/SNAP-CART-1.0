@@ -1,5 +1,6 @@
 "use client"
 import LiveMap from '@/components/LiveMap';
+import { getSocket } from '@/lib/socket';
 import { IUser } from '@/models/user.model';
 import { RootState } from '@/redux/store';
 import axios from 'axios'
@@ -86,7 +87,21 @@ function TrackOrder({ params }: { params: { orderId: string } }) {
       }
       }
       getOrder()
-  },[userData?._id])
+  }, [userData?._id])
+  useEffect(():any => {
+    const socket = getSocket()
+    socket.on("update-deliveryBoy-location", (data) => {
+      console.log(location)
+      setDeliveryBoyLocation({
+        latitude: data.location.coordinates?.[1] ?? data.location.latitude,
+        longitude:data.location.coordinates?.[0] ?? data.location.longitude,
+      })
+
+     })
+  
+    return ()=>socket.off("update-deliveryBoy-location")
+  }, [order])
+  
   return (
       <div className='w-full min-h-screen bg-linear-to-b from-green-50 to-white'>
           <div className='max-w-2xl mx-auto pb-24'>

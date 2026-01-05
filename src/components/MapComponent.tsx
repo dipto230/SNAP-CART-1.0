@@ -1,9 +1,21 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import L, { LatLngExpression } from 'leaflet'
-import { MapContainer, Marker, Polyline, Popup, TileLayer } from 'react-leaflet'
+import { MapContainer, Marker, Polyline, Popup, TileLayer, useMap } from 'react-leaflet'
 import 'leaflet/dist/leaflet.css'
+
+function Recenter({ positions }: { positions: [number, number] }) {
+  const map = useMap()
+  useEffect(() => {
+    if (positions[0] !== 0 && positions[1] !== 0) {
+      map.setView(positions, map.getZoom(), {
+        animate:true
+      })
+    }
+  },[positions, map])
+  return null
+}
 
 interface ILocation {
   latitude: number
@@ -50,6 +62,7 @@ export default function MapComponent({
       scrollWheelZoom
       className="w-full h-[500px] rounded-xl overflow-hidden shadow"
     >
+      <Recenter positions={center as any}/>
       <TileLayer
         attribution='&copy; OpenStreetMap contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

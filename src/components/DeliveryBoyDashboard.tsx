@@ -124,8 +124,8 @@ function DeliveryBoyDashboard() {
     <div className='w-full min-h-screen bg-gray-50 p-4'>
       <div className='max-w-3xl mx-auto'>
         <h2 className='text-2xl font-bold mb-[30px] mt-[120px]'>Delivery Assignments</h2>
-        {assignments.map(a => (
-          <div key={a._id} className='p-5 bg-white rounded-xl shadow mb-4 border'>
+        {assignments.map((a,index) => (
+          <div key={index} className='p-5 bg-white rounded-xl shadow mb-4 border'>
             <p><b>Order Id</b>{a?.order._id.slice(-6)}</p>
             <p className='text-gray-600'>{a.order.address.fullAddress}</p>
             <div className='flex gap-3 mt-4'>

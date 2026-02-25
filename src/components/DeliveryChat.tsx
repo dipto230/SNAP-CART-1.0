@@ -32,6 +32,12 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
              })
          }
          socket.emit("send-message", message)
+         socket.on("send-message", (message) => {
+             if (message.roomId === orderId) {
+                   setMessages((prev)=>[...prev!,message])
+             }
+           
+         })
          setNewMessage("")
     }
     useEffect(() => {

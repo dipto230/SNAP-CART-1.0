@@ -171,6 +171,7 @@ return ()=>socket.off("update-deliveryBoy-location")
     // setShowOtpBox(true)
     setActiveOrder(null)
     setVerifyOtpLoading(false)
+    await fetchCurrentOrder()
   } catch (error) {
     setOtpError("Otp verification error")
     setVerifyOtpLoading(false)
@@ -205,6 +206,10 @@ return ()=>socket.off("update-deliveryBoy-location")
                   {otpError && <div className='text-red-2 mt-2'>{otpError}</div>}
 
               </div>
+            }
+
+            {
+              activeOrder.order.deliveryOtpVerification && <div className='text-green-700 text-center font-bold'>Delivery Completed!</div>
             }
          
 

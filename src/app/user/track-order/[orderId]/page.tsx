@@ -4,7 +4,7 @@ import { getSocket } from '@/lib/socket';
 import { IUser } from '@/models/user.model';
 import { RootState } from '@/redux/store';
 import axios from 'axios'
-import { ArrowLeft, Send, Sparkle } from 'lucide-react';
+import { ArrowLeft, Loader2, Send, Sparkle } from 'lucide-react';
 import mongoose from 'mongoose';
 import { useParams, useRouter } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
@@ -55,9 +55,8 @@ interface ILocation{
 function TrackOrder({ params }: { params: { orderId: string } }) {
     const {userData} = useSelector((state:RootState)=>state.user)
     const { orderId } = useParams()
-        const [suggestions, setSuggestions] = useState([
-            "hello","thank you", "hii"
-        ])
+    const [loading, setLoading] = useState(false)
+    const [suggestions, setSuggestions] = useState([])
 
     const [order, setOrder] = useState<IOrder>()
   const router = useRouter()
@@ -163,7 +162,22 @@ function TrackOrder({ params }: { params: { orderId: string } }) {
                 top: chatBoxRef.current.scrollHeight,
                 behavior:"smooth"
             })
-        },[messages])
+        }, [messages])
+    
+
+    const getSuggestion = async () => {
+        setLoading(true)
+        try {
+            const lastMessage = messages?.filter(m=>m.senderId!==userData?._id).at(-1)
+            const result = await axios.post("/api/chat/ai-suggestions", { message: lastMessage?.text, role: "user" })
+            // console.log(result)
+            setSuggestions(result.data)
+            setLoading(false)
+        } catch (error) {
+            console.log(error)
+            setLoading(false)
+        }
+    }
   
   return (
       <div className='w-full min-h-screen bg-linear-to-b from-green-50 to-white'>
@@ -194,10 +208,12 @@ function TrackOrder({ params }: { params: { orderId: string } }) {
 
                                 <div className='flex justify-between items-center mb-3'>
               <span className='font-semibold text-gray-700 text-sm'>Quick Replies</span>
-              <motion.button
+                          <motion.button
+                              disabled={loading}
                   whileTap={{ scale: 0.9}}
-                  className='px-3 py-1 text-sx flex items-center gap-1 bg-purple-100 text-purple-700 rounded-full shadow-sm border border-purple-200 cursor-pointer '
-              ><Sparkle size={14} /> AI Suggest</motion.button>
+                              className='px-3 py-1 text-sx flex items-center gap-1 bg-purple-100 text-purple-700 rounded-full shadow-sm border border-purple-200 cursor-pointer '
+                              onClick={getSuggestion}
+              ><Sparkle size={14} /> {loading? <Loader2 className='w-5 h-5 animate-spin'/>:"AI Suggest"}</motion.button>
               
           </div>
        <div className='flex gap-2 flex-wrap mb-3'>

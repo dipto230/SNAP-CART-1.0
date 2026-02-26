@@ -2,7 +2,7 @@ import { getSocket } from '@/lib/socket'
 import { IMessage } from '@/models/message.model'
 import axios from 'axios'
 
-import { Send, Sparkle } from 'lucide-react'
+import { Loader2, Send, Sparkle } from 'lucide-react'
 import mongoose from 'mongoose'
 import {AnimatePresence, motion} from "motion/react"
 
@@ -15,6 +15,7 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
     const [newMessage, setNewMessage] = useState("")
     const [messages, setMessages] = useState<IMessage[]>()
     const chatBoxRef = useRef<HTMLDivElement>(null)
+    const [loading, setLoading] = useState(false)
     const [suggestions, setSuggestions] = useState([])
    
     useEffect(() => {
@@ -65,14 +66,17 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
         }
         getAllMessages()
     })
-    const getSuggestion = async() => {
+    const getSuggestion = async () => {
+        setLoading(true)
         try {
             const lastMessage = messages?.filter(m=>m.senderId!==deliveryBoyId).at(-1)
             const result = await axios.post("/api/chat/ai-suggestions", { message: lastMessage?.text, role: "delivery_boy" })
             // console.log(result)
             setSuggestions(result.data)
+            setLoading(false)
         } catch (error) {
             console.log(error)
+            setLoading(false)
         }
     }
   return (
@@ -81,9 +85,10 @@ function DeliveryChat({ orderId, deliveryBoyId }: props) {
               <span className='font-semibold text-gray-700 text-sm'>Quick Replies</span>
               <motion.button
                   whileTap={{ scale: 0.9 }}
+                  disabled={loading}
                    onClick={getSuggestion}
                   className='px-3 py-1 text-sx flex items-center gap-1 bg-purple-100 text-purple-700 rounded-full shadow-sm border border-purple-200 '
-              ><Sparkle size={14} /> AI Suggest</motion.button>
+              ><Sparkle size={14} /> {loading? <Loader2 className='w-5 h-5 animate-spin'/>:"AI Suggest"}</motion.button>
               
           </div>
        <div className='flex gap-2 flex-wrap mb-3'>

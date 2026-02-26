@@ -7,6 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import LiveMap from './LiveMap'
 import DeliveryChat from './DeliveryChat'
+import { Loader } from 'lucide-react'
 
 interface ILocation{
   latitude: number,
@@ -17,6 +18,11 @@ function DeliveryBoyDashboard() {
   const [assignments, setAssignments] = useState<any[]>([])
   const { userData } = useSelector((state: RootState) => state.user)
   const [activeOrder, setActiveOrder] = useState<any>(null)
+  const [showOtpBox, setShowOtpBox] = useState(false)
+  const [otpError, setOtpError] = useState("")
+  const [sendOtpLoading, setSendOtpLoading] = useState(false)
+  const [verifyOtpLoading, setVerifyOtpLoading] = useState(false)
+  const [otp, setOtp] = useState("")
   const [userLocation, setUserLocation] = useState<ILocation>(
     {
       latitude: 0,
@@ -130,6 +136,48 @@ return ()=>socket.off("update-deliveryBoy-location")
        fetchAssignments()
    }, [userData])
   
+  
+  const sendOtp = async () => {
+   setSendOtpLoading(true)
+  try {
+    if (!activeOrder?.order?._id) {
+      console.log("❌ Order ID missing:", activeOrder)
+      return
+    }
+
+    console.log("✅ Sending Order ID:", activeOrder.order._id)
+
+    const result = await axios.post(
+      "/api/delivery/otp/send",
+      { orderId: activeOrder.order._id }
+    )
+
+    console.log("SUCCESS:", result.data)
+    setShowOtpBox(true)
+     setSendOtpLoading(false)
+
+
+  } catch (error: any) {
+    console.log("❌ BACKEND ERROR:", error.response?.data)
+    setSendOtpLoading(false)
+  }
+  }
+  
+  const verifyOtp = async () => {
+    setVerifyOtpLoading(true)
+  try {
+    const result=await axios.post("/api/delivery/otp/verify",{orderId:activeOrder.order._id, otp})
+    console.log(result.data)
+    // setShowOtpBox(true)
+    setActiveOrder(null)
+    setVerifyOtpLoading(false)
+  } catch (error) {
+    setOtpError("Otp verification error")
+    setVerifyOtpLoading(false)
+
+  }
+}
+  
   if (activeOrder && userLocation) {
     return (
       <div className='p-4 pt-[120px] min-h-screen bg-gray-50'>
@@ -139,7 +187,28 @@ return ()=>socket.off("update-deliveryBoy-location")
           <div className='rounded-xl border shadow-xl overflow-hidden mb-6'>
             <LiveMap userLocation={userLocation} deliveryBoyLocation={ deliveryBoyLocation} />
           </div>
-          <DeliveryChat orderId={activeOrder.order._id} deliveryBoyId={ userData?._id!} />
+          <DeliveryChat orderId={activeOrder.order._id} deliveryBoyId={userData?._id!} />
+          
+          <div className='mt-6 bg-white rounded-xl border shadow p-6'>
+            {!activeOrder.order.deliveryOtpVerification && !showOtpBox && (
+              <button
+              onClick={sendOtp}
+                className='w-full py-4 bg-green-600 text-white rounded-lg'>
+             { sendOtpLoading? <Loader size={16} className='animate-spin text-white'/>: "Mark as Delivered"}
+            </button>
+            )}
+            {
+              showOtpBox && 
+              <div className='mt-4'>
+                <input type="text" className='w-full py-3 border rounded-lg text-center' placeholder='Enter Otp' maxLength={4} onChange={(e)=>setOtp(e.target.value)} value={otp}/>
+                  <button className='w-full mt-4 bg-blue-600 text-white py-3 rounded-lg' onClick={verifyOtp}> { verifyOtpLoading? <Loader size={16} className='animate-spin text-white'/>: "Verify OTP"}</button>
+                  {otpError && <div className='text-red-2 mt-2'>{otpError}</div>}
+
+              </div>
+            }
+         
+
+          </div>
 
         </div>
 

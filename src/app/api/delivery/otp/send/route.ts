@@ -1,4 +1,5 @@
 import connectDb from "@/lib/db";
+import { sendMail } from "@/lib/mailer";
 import Order from "@/models/order.model";
 import { NextRequest, NextResponse } from "next/server";
 

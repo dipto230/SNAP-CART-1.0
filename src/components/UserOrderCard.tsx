@@ -85,12 +85,17 @@ function UserOrderCard({ order }: { order: IOrder }) {
                   <p className='text-xs text-gray-500 mt-1'>{new Date(order.createdAt!).toLocaleString() }</p>
               </div>  
               <div className='flex flex-wrap items-center gap-2'>
-                  <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${
+                  {status !== "delivered" && 
+
+                       <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${
                       order.isPaid ? "bg-green-100 text-green-700 border-green-300"
                       :"bg-red-100 text-red-700 border-red-300"
                   }`}>
                       {order.isPaid?"Paid":"Unpaid"}
                   </span>
+                      
+                  }
+                 
                   <span className={`px-3 py-1 text-xs font-semibold border rounded-full ${getStatusColor(status)}`}>
                       {status}
                   </span>
@@ -117,9 +122,9 @@ function UserOrderCard({ order }: { order: IOrder }) {
 
 
 
+          {status != "delivered" &&  
 
-
-          <div className='p-5 space-y-4'>
+                    <div className='p-5 space-y-4'>
   {order.paymentMethod == "cod" ? <div className='flex items-center gap-2 text-gray-700 text-sm'>
     <Truck size={16} className='text-green-600' />
     Cash On Delivery
@@ -188,6 +193,11 @@ function UserOrderCard({ order }: { order: IOrder }) {
               </div>
 
 </div>
+          
+              
+        }
+
+
           
 
 

@@ -70,7 +70,16 @@ function ManageOrders() {
         socket?.on("new-order", (newOrder) => {
             setOrders((prev)=>[newOrder,...prev!])
         })
-        return ()=>socket.off("new-order")
+        socket.on("order-assigned",({orderId,assignedDeliveryBoy})=>{
+  setOrders((prev)=>prev?.map((o)=>(
+o._id==orderId?{...o,assignedDeliveryBoy}:o
+  )))
+})
+        return () => {
+            socket.off("new-order")
+            socket.off("order-assigned")
+            
+        }
     },[])
   return (
       <div className='min-h-screen bg-gray-50 w-full'>

@@ -94,13 +94,16 @@ const statusOptions = [
                       <Package size={20} />
                       Order # {order._id?.toString().slice(-6)}
                   </p>
-                  <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full border ${order.isPaid
+                  {status != "delivered" &&  
+                      <span className={`inline-block text-xs font-semibold px-3 py-1 rounded-full border ${order.isPaid
                       ? "bg-green-100 text-green-700 border-green-300"
                       :"bg-red-100 text-red-700 border-red-300"
                       }`}>
                       {order.isPaid?"Paid":"Unpaid"}
                       
                   </span>
+                   }
+              
                   <p className='text-gray-500 text-sm'>
                       {new Date(order.createdAt!).toLocaleString()}
                   </p>
@@ -153,6 +156,17 @@ const statusOptions = [
                       {status}
                       
                   </span>
+                  {status != "delivered" &&   <select
+  value={status}
+  onChange={(e) => {
+    if (!order._id) return;
+    updateStatus(order._id.toString(), e.target.value); // sends exact backend enum
+  }}
+>
+  {statusOptions.map(st => (
+    <option key={st.value} value={st.value}>{st.label}</option>
+  ))}
+</select> }
                   {/* <select className='border border-gray-300 rounded-lg px-3 py-1 text-sm shadow-sm hover:border-green-400 transition focus:ring-2 focus:ring-green-500 outline-none'
                       onChange={(e) => {
                           if (!order._id) return;
@@ -166,17 +180,7 @@ const statusOptions = [
 
                       
                   </select> */}
-                  <select
-  value={status}
-  onChange={(e) => {
-    if (!order._id) return;
-    updateStatus(order._id.toString(), e.target.value); // sends exact backend enum
-  }}
->
-  {statusOptions.map(st => (
-    <option key={st.value} value={st.value}>{st.label}</option>
-  ))}
-</select>
+                 
 
                   
               </div>

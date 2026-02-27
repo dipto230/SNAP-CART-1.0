@@ -7,6 +7,7 @@ import Image from 'next/image'
 import axios from 'axios'
 import mongoose from 'mongoose'
 import { IUser } from '@/models/user.model'
+import { getSocket } from '@/lib/socket'
  
 interface IOrder {
   _id?: mongoose.Types.ObjectId;
@@ -79,7 +80,17 @@ const statusOptions = [
     }
     useEffect(() => {
         setStatus(order.status)
-    },[order])
+    }, [order])
+    
+        useEffect(():any => {
+            const socket = getSocket()
+            socket.on("order-status-update", (data) => {
+                if (data.orderId.toString() == order._id!.toString()) {
+                 setStatus(data.status)
+             }   
+            })
+            return ()=>socket.off("order-status-update")
+        },[])
   return (
       <motion.div
           key={order._id?.toString()}

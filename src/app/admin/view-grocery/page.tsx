@@ -2,15 +2,31 @@
 
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import {motion} from 'motion/react'
-import { ArrowLeft, Package, Pencil, Search } from 'lucide-react'
+import {motion, AnimatePresence} from 'motion/react'
+import { ArrowLeft, Package, Pencil, Search, X } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { IGrocery } from '@/models/grocery.model'
 import Image from 'next/image'
 
+const categories = [
+  "Fruits & Vegetables",
+  "Dairy & Eggs",
+  "Rice, Atta & Grains",
+  "Snacks & Biscuits",
+  "Spices & Masalas",
+  "Beverages & Drinks",
+  "Personal Care",
+  "Household Essentials",
+  "Instant & Packaged Food",
+  "Baby & Pet Care"
+]
+
 function ViewGrocery() {
     const router = useRouter()
     const [groceries, setGroceries] = useState<IGrocery[]>()
+    const [editing, setEditing] = useState<IGrocery | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+
   useEffect(() => {
     const getGroceries = async () => {
       try {
@@ -22,6 +38,12 @@ function ViewGrocery() {
       }
       getGroceries()
   }, [])
+    useEffect(()=>{
+        if (editing) {
+            setImagePreview(editing.image)
+        }
+
+    },[editing])
 
   return (
       <div className="pt-4 w-[95%] md:w-[85%] mx-auto pb-20">
@@ -78,7 +100,7 @@ function ViewGrocery() {
                               <p className='text-green-700 font-bold text-lg'>
                                   {g.price} / <span className='text-gray-500 text-sm font-medium ml-1'>{g.unit}</span>
                               </p>
-                              <button className='bg-green-600 text-white px-4 py-2 rounded-lg text-font-semibold flex items-center justify-center gap-2 hover:bg-green-700 transition-all'>
+                              <button className='bg-green-600 text-white px-4 py-2 rounded-lg text-font-semibold flex items-center justify-center gap-2 hover:bg-green-700 transition-all' onClick={()=>setEditing(g)}>
                                   <Pencil size={15}/>Edit
                               </button>
                               
@@ -89,6 +111,70 @@ function ViewGrocery() {
                   </motion.div>
               ))}
           </div>
+          <AnimatePresence>
+              {editing && (
+                  <motion.div
+                      initial={{opacity:0}}
+                      animate={{opacity:1}}
+                      exit={{opacity:0}}
+                      className='fixed inset-0 bg-black/40 items-center justify-center z-50 backdrop-blur-sm px-4'
+                  >
+                      <motion.div
+                          initial={{ y: 40, opacity: 0 }}
+                          animate={{ y: 0, opacity: 1 }}
+                          exit={{ y: 40, opacity: 0 }}
+                     
+                          transition={{duration:0.3}}
+                          className='bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 relative '
+                          
+                          
+                      >
+                          <div className='flex justify-between items-center mb-4'>
+                              <h2 className='text-2xl font-bold text-green-700'>Edit Grocery</h2>
+                              <button className='text-gray-600 hover:text-red-600' onClick={()=>setEditing(null)}>
+                                
+                                  <X size={ 18} />
+                                  
+                              </button>
+                              <div className='relative aspect-square w-full rounded-lg overflow-hidden mb-4 border border-gray-200 group'>
+                                  {imagePreview && <Image
+                                      src={imagePreview}
+                                      alt={editing.name}
+                                      fill
+                                      className='object-cover'
+                                  />}
+                                  
+                              </div>
+                              <div className='space-y-4'>
+                                  <input
+                                      type='text'
+                                      placeholder='Enter Grocery Name'
+                                      value={editing.name}
+                                      onChange={(e)=>setEditing({...editing, name:e.target.value})}
+                                      className='w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none' />
+                                  <select
+                                      className='w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none bg-white'
+                                      value={editing.category}
+                                      onChange={(e)=>setEditing({...editing, category:e.target.value})}
+                                  >
+                                      <option>Select Category</option>
+                                      {categories.map((c, i) => (
+                                          <option key={i} value={c}>{c}</option>
+                                      ))}
+                                      
+                                  </select>
+                                  
+                              </div>
+
+                        
+                              
+                          </div>
+                          
+                      </motion.div>
+                      
+                  </motion.div>
+            )}
+            </AnimatePresence>
     </div>
   )
 }

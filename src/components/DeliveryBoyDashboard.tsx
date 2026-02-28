@@ -8,13 +8,14 @@ import { useSelector } from 'react-redux'
 import LiveMap from './LiveMap'
 import DeliveryChat from './DeliveryChat'
 import { Loader } from 'lucide-react'
+import { Bar, BarChart, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 
 interface ILocation{
   latitude: number,
   longitude:number
 }
 
-function DeliveryBoyDashboard() {
+function DeliveryBoyDashboard({earning}:{earning:number}) {
   const [assignments, setAssignments] = useState<any[]>([])
   const { userData } = useSelector((state: RootState) => state.user)
   const [activeOrder, setActiveOrder] = useState<any>(null)
@@ -173,12 +174,60 @@ return ()=>socket.off("update-deliveryBoy-location")
     setActiveOrder(null)
     setVerifyOtpLoading(false)
     await fetchCurrentOrder()
+    
   } catch (error) {
     setOtpError("Otp verification error")
     setVerifyOtpLoading(false)
 
   }
+  }
+
+  if (!activeOrder && assignments.length === 0) {
+
+  const todayEarning = [
+    {
+      name: "Today",
+      earning,
+      deliveries:earning/40
+    }
+  ]
+
+  return (
+    <div className='flex items-center justify-center min-h-screen bg-linear-to-br from-white to-green-50 p-6'>
+          <div className ='max-w-md w-full text-center'>
+            <h2 className='text-2xl font-bold text-gray-800'>No Actives Deliveries</h2>
+            <p className='text-gray-500 mb-5'>Stay Online to recive new Orders</p>
+            <div className='bg-white border rounded-xl shadow-xl p-6'>
+          <h2 className='font-medium text-green-700 mb-2'>Todays Performance</h2>
+               <ResponsiveContainer width="100%" height={300}>
+                       
+                        <BarChart data={todayEarning}>
+                          
+                            <XAxis dataKey="name" />
+                            <YAxis/>
+          <Tooltip />
+          <Legend/>
+          <Bar dataKey="earnings" name='Earnings' />
+          <Bar dataKey="deliveries" name='Deliveries' />
+                            
+                            </BarChart>
+                            
+                        
+          </ResponsiveContainer>
+          <p className='mt-4 text-lg font-bold text-green-700'>{earning || 0}Earned Today</p>
+          <button className='mt-4 w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg' onClick={()=>window.location.reload()}>Refresh Earning</button>
+
+            </div>
+
+          </div>
+    </div>
+  )
 }
+  
+
+
+
+
   
   if (activeOrder && userLocation) {
     return (

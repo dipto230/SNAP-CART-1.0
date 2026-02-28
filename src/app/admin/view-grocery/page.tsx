@@ -3,7 +3,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
-import { ArrowLeft, Package, Pencil, Search, X } from 'lucide-react'
+import { ArrowLeft, Package, Pencil, Search, X, Upload } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { IGrocery } from '@/models/grocery.model'
 import Image from 'next/image'
@@ -29,7 +29,8 @@ function ViewGrocery() {
   const router = useRouter()
   const [groceries, setGroceries] = useState<IGrocery[]>()
   const [editing, setEditing] = useState<IGrocery | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
+  
 
   useEffect(() => {
     const getGroceries = async () => {
@@ -49,6 +50,8 @@ function ViewGrocery() {
     }
   }, [editing])
 
+
+
   return (
     <div className="pt-4 w-[95%] md:w-[85%] mx-auto pb-20">
 
@@ -61,6 +64,7 @@ function ViewGrocery() {
       >
         <button
           onClick={() => router.push("/")}
+
           className="flex items-center justify-center gap-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold px-4 py-2 rounded-full transition w-full sm:w-auto"
         >
           <ArrowLeft size={18} />
@@ -153,6 +157,7 @@ function ViewGrocery() {
               transition={{ duration: 0.3 }}
               className='bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 relative'
             >
+
               {/* Header */}
               <div className='flex justify-between items-center mb-4'>
                 <h2 className='text-2xl font-bold text-green-700'>
@@ -166,15 +171,43 @@ function ViewGrocery() {
                 </button>
               </div>
 
-              {/* Image */}
-              <div className='relative aspect-square w-full rounded-lg overflow-hidden mb-4 border border-gray-200'>
+              {/* Image Section */}
+              <div className='relative w-36 h-36 sm:w-40 sm:h-40 mx-auto rounded-lg overflow-hidden mb-4 border border-gray-200'>
+
                 {imagePreview && (
-                  <Image
-                    src={imagePreview}
-                    alt={editing.name}
-                    fill
-                    className='object-cover'
-                  />
+                  <>
+                    <Image
+                      src={imagePreview}
+                      alt={editing.name}
+                      fill
+                      className='object-cover'
+                    />
+
+                    <label
+                      htmlFor='imageUpload'
+                                          className='absolute bottom-2 right-2 bg-black/60 hover:bg-black text-white p-2 rounded-full cursor-pointer transition'
+                                          
+                    >
+                      <Upload size={16} />
+                    </label>
+
+                    <input
+                      type='file'
+                      accept='image/*'
+                      hidden
+                      id='imageUpload'
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const reader = new FileReader()
+                          reader.onloadend = () => {
+                            setImagePreview(reader.result as string)
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                      }}
+                    />
+                  </>
                 )}
               </div>
 
@@ -199,13 +232,11 @@ function ViewGrocery() {
                 >
                   <option>Select Category</option>
                   {categories.map((c, i) => (
-                    <option key={i} value={c}>
-                      {c}
-                    </option>
+                    <option key={i} value={c}>{c}</option>
                   ))}
-                              </select>
-                              
-                                 <input
+                </select>
+
+                <input
                   type='text'
                   placeholder='Price'
                   value={editing.price}
@@ -213,31 +244,31 @@ function ViewGrocery() {
                     setEditing({ ...editing, price: e.target.value })
                   }
                   className='w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none'
-                              />
-                               <select
+                />
+
+                <select
                   className='w-full border border-gray-300 rounded-lg p-2.5 focus:ring-2 focus:ring-green-500 outline-none bg-white'
                   value={editing.unit}
                   onChange={(e) =>
                     setEditing({ ...editing, unit: e.target.value })
                   }
                 >
-                  <option>Select Category</option>
+                  <option>Select Unit</option>
                   {units.map((u, i) => (
-                    <option key={i} value={u}>
-                      {u}
-                    </option>
+                    <option key={i} value={u}>{u}</option>
                   ))}
-                              </select>
-                          </div>
-                          <div className='flex justify-end mt-6'>
-                          <button className='px-4 py-2 rounded-lg bg-green-600 text-white flex items-center gap-2 hover:bg-green-700 transition-all'>
-                            Edit Grocery
+                </select>
+              </div>
 
-                          </button>
-                          <button className='px-4 py-2 rounded-lg border border-gray-300 hover:border-gray-100 transition'>
-                            Delete Grocery
-                          </button>
-                          </div>
+              {/* Buttons */}
+              <div className='flex justify-end gap-3 mt-6'>
+                <button className='px-4 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition-all'>
+                  Edit Grocery
+                </button>
+                <button className='px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition'>
+                  Delete Grocery
+                </button>
+              </div>
 
             </motion.div>
           </motion.div>
